@@ -1,0 +1,297 @@
+/* Layout halaman utama */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 30px;
+  font-family: Arial, sans-serif;
+}
+
+/* Header & tombol tambah */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #172033;
+}
+
+.header p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.btn-tambah {
+  background-color: #155dfb;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Input search & jumlah produk */
+.input-cari {
+  width: 300px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  margin-bottom: 20px;
+}
+
+.jumlah-produk {
+  text-align: right;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Grid dan kartu produk */
+.produk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 15px;
+}
+
+.produk-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+}
+
+.produk-id {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.produk-card h2 {
+  font-size: 20px;
+  margin: 10px 0 5px;
+  color: #172033;
+}
+
+.produk-card h3 {
+  color: #155dfb;
+  margin: 0 0 18px;
+  font-size: 19px;
+}
+
+/* Tombol aksi pada kartu */
+.aksi {
+  display: flex;
+  gap: 10px;
+}
+
+.aksi button {
+  flex: 1;
+  padding: 9px;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-edit {
+  color: #155dfb;
+  border: 1px solid #155dfb;
+}
+
+.btn-hapus {
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Modal form & overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-box h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: #172033;
+}
+
+.modal-deskripsi {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 22px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.modal-id {
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+
+.modal-box form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-box label {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #172033;
+}
+
+.modal-box input {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.modal-box input:focus {
+  outline: none;
+  border-color: #155dfb;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: -10px;
+  margin-bottom: 22px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.modal-actions button {
+  padding: 11px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.btn-batal {
+  background: white;
+  color: #155dfb;
+  border: 1px solid #155dfb;
+}
+
+.btn-simpan {
+  background: #155dfb;
+  color: white;
+  border: 1px solid #155dfb;
+}
+
+.btn-konfirmasi-hapus {
+  background: #ef4444;
+  color: white;
+  border: 1px solid #ef4444;
+}
+
+/* Modal konfirmasi hapus */
+.modal-hapus {
+  text-align: center;
+}
+
+.icon-hapus {
+  font-size: 35px;
+  margin-bottom: 15px;
+}
+
+.produk-preview {
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.produk-preview span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.produk-preview h3 {
+  color: #172033;
+  margin: 8px 0;
+}
+
+.produk-preview strong {
+  color: #155dfb;
+}
+
+.produk-kosong {
+  text-align: center;
+  padding: 30px;
+  color: #64748b;
+}
+
+/* Responsive breakpoint */
+@media (max-width: 700px) {
+  .container {
+    margin: 15px auto;
+    padding: 15px;
+  }
+
+  .produk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    gap: 15px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .input-cari {
+    width: 100%;
+  }
+}
