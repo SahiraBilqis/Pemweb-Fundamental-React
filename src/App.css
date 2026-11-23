@@ -1,17 +1,13 @@
-/* Layout halaman utama */
-#root {
-  width: 100%;
-  min-height: 100vh;
-}
-
+/* Container utama */
 .container {
   max-width: 1000px;
-  margin: 50px auto;
-  padding: 30px;
+  margin: 70px auto;
+  padding: 20px;
   font-family: Arial, sans-serif;
+  color: #1e293b;
 }
 
-/* Header & tombol tambah */
+/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -21,91 +17,109 @@
 
 .header h1 {
   font-size: 28px;
-  margin-bottom: 8px;
-  color: #172033;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .header p {
   color: #64748b;
-  font-size: 14px;
 }
 
+/* Tombol tambah */
 .btn-tambah {
-  background-color: #155dfb;
+  background: #2563eb;
   color: white;
+  padding: 14px 20px;
   border: none;
-  padding: 12px 18px;
-  border-radius: 7px;
-  cursor: pointer;
+  border-radius: 8px;
   font-weight: bold;
+  cursor: pointer;
 }
 
-/* Input search & jumlah produk */
+/* Pencarian */
 .input-cari {
-  width: 300px;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
+  width: 320px;
+  max-width: 100%;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   margin-bottom: 20px;
 }
 
+/* Jumlah produk */
 .jumlah-produk {
   text-align: right;
-  font-size: 13px;
   color: #64748b;
+  margin-bottom: 15px;
 }
 
-/* Grid dan kartu produk */
+/* Grid produk */
 .produk-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 15px;
+  gap: 20px;
 }
 
+/* Kartu produk */
 .produk-card {
   background: white;
+  padding: 20px;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  padding: 18px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .produk-id {
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
 }
 
 .produk-card h2 {
   font-size: 20px;
-  margin: 10px 0 5px;
-  color: #172033;
+  font-weight: 600;
+  margin: 14px 0;
 }
 
 .produk-card h3 {
-  color: #155dfb;
-  margin: 0 0 18px;
-  font-size: 19px;
+  color: #2563eb;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
 }
 
-/* Tombol aksi pada kartu */
+/* Tombol detail */
+.btn-detail {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Tombol aksi */
 .aksi {
   display: flex;
   gap: 10px;
 }
 
-.aksi button {
+.btn-edit,
+.btn-hapus {
   flex: 1;
-  padding: 9px;
-  border-radius: 6px;
+  padding: 12px;
+  border-radius: 7px;
   background: white;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .btn-edit {
-  color: #155dfb;
-  border: 1px solid #155dfb;
+  color: #2563eb;
+  border: 1px solid #2563eb;
 }
 
 .btn-hapus {
@@ -113,17 +127,31 @@
   border: 1px solid #ef4444;
 }
 
+/* List View */
+.produk-grid.produk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Footer */
 .footer {
-  margin-top: 20px;
-  font-size: 13px;
+  margin-top: 25px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.produk-kosong {
+  text-align: center;
+  padding: 30px;
   color: #64748b;
 }
 
-/* Modal form & overlay */
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,41 +161,30 @@
 
 .modal-box {
   position: relative;
-  width: 100%;
-  max-width: 420px;
   background: white;
-  padding: 28px;
+  padding: 30px;
+  width: 450px;
+  max-width: 100%;
   border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
 }
 
 .modal-box h2 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  color: #172033;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .modal-deskripsi {
-  font-size: 13px;
   color: #64748b;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .modal-close {
   position: absolute;
-  top: 14px;
-  right: 16px;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  font-size: 24px;
+  top: 15px;
+  right: 20px;
+  font-size: 25px;
   cursor: pointer;
-}
-
-.modal-id {
-  color: #64748b;
-  font-size: 12px;
-  margin-bottom: 18px;
 }
 
 .modal-box form {
@@ -176,69 +193,68 @@
 }
 
 .modal-box label {
-  font-size: 13px;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 8px;
-  color: #172033;
 }
 
 .modal-box input {
   padding: 12px;
   border: 1px solid #cbd5e1;
   border-radius: 7px;
-  margin-bottom: 18px;
-  font-size: 14px;
-  width: 100%;
-}
-
-.modal-box input:focus {
-  outline: none;
-  border-color: #155dfb;
+  margin-bottom: 15px;
 }
 
 .form-hint {
-  font-size: 12px;
   color: #64748b;
-  margin-top: -10px;
-  margin-bottom: 22px;
+  font-size: 13px;
 }
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 25px;
 }
 
 .modal-actions button {
-  padding: 11px 15px;
-  border-radius: 6px;
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 13px;
 }
 
 .btn-batal {
-  background: white;
-  color: #155dfb;
-  border: 1px solid #155dfb;
+  background: #e2e8f0;
 }
 
 .btn-simpan {
-  background: #155dfb;
+  background: #2563eb;
   color: white;
-  border: 1px solid #155dfb;
 }
 
 .btn-konfirmasi-hapus {
   background: #ef4444;
   color: white;
-  border: 1px solid #ef4444;
 }
 
-/* Modal konfirmasi hapus */
-.modal-hapus {
-  text-align: center;
+.modal-id {
+  color: #64748b;
+  margin-bottom: 15px;
+}
+
+.produk-preview {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.produk-preview h3 {
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.produk-preview strong {
+  color: #2563eb;
 }
 
 .icon-hapus {
@@ -246,52 +262,64 @@
   margin-bottom: 15px;
 }
 
-.produk-preview {
-  text-align: left;
-  border: 1px solid #e2e8f0;
-  padding: 15px;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
-.produk-preview span {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.produk-preview h3 {
-  color: #172033;
-  margin: 8px 0;
-}
-
-.produk-preview strong {
-  color: #155dfb;
-}
-
-.produk-kosong {
-  text-align: center;
-  padding: 30px;
-  color: #64748b;
-}
-
-/* Responsive breakpoint */
-@media (max-width: 700px) {
-  .container {
-    margin: 15px auto;
-    padding: 15px;
-  }
-
+/* Responsive */
+@media (max-width: 768px) {
   .produk-grid {
     grid-template-columns: 1fr;
   }
 
   .header {
-    gap: 15px;
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
   }
 
-  .input-cari {
+  .container {
+    margin: 20px auto;
+  }
+}
+
+/* Penyempurnaan tampilan responsif Tugas 4 */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.produk-card {
+  min-width: 0;
+}
+
+/* Mencegah modal keluar dari layar */
+.modal-box {
+  width: min(450px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Penyesuaian layar ponsel */
+@media (max-width: 640px) {
+  .container {
     width: 100%;
+    margin: 20px auto;
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-box {
+    padding: 22px;
+  }
+
+  .aksi {
+    flex-direction: column;
   }
 }

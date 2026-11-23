@@ -1,39 +1,73 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
+import { productApi } from "./services/productApi";
+
+import PageLayout from "./components/templates/PageLayout";
+import ProductForm from "./components/organisms/ProductForm";
+import Button from "./components/atoms/Button";
+
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
+
 import "./App.css";
 
-// Data awal produk untuk inisialisasi state
-const dataAwal = [
-  { id: 1, nama: "Pulpen", harga: 5000 },
-  { id: 2, nama: "Buku Tulis", harga: 12000 },
-  { id: 3, nama: "Spidol", harga: 8000 },
-  { id: 4, nama: "Penggaris", harga: 6000 },
-  { id: 5, nama: "Penghapus", harga: 3000 },
-];
+const formatRupiah = (nilai) =>
+  "Rp" + nilai.toLocaleString("id-ID");
 
 function App() {
-  // State untuk list produk dan input search
-  const [produk, setProduk] = useState(dataAwal);
+  // Data produk berasal dari backend
+  const [produk, setProduk] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Pencarian
   const [pencarian, setPencarian] = useState("");
 
-  // State untuk kontrol modal ('tambah' | 'edit' | 'hapus') dan produk yang dipilih
+  // Modal tambah / edit / hapus
   const [modal, setModal] = useState(null);
   const [produkDipilih, setProdukDipilih] = useState(null);
 
-  // State form input nama & harga produk
+  // Input formulir
   const [nama, setNama] = useState("");
   const [harga, setHarga] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Helper untuk format angka menjadi rupiah
-  const formatRupiah = (nilai) => {
-    return "Rp" + nilai.toLocaleString("id-ID");
-  };
+  // Pengaturan Grid / List
+  const [tampilan, setTampilan] = useState(() => {
+    return localStorage.getItem("tampilanProduk") === "list"
+      ? "list"
+      : "grid";
+  });
 
-  // Filter list produk berdasarkan nama sesuai keyword pencarian
-  const hasilPencarian = produk.filter((item) =>
-    item.nama.toLowerCase().includes(pencarian.toLowerCase())
-  );
+  // GET produk dari backend
+  const ambilProduk = useCallback(async () => {
+    try {
+      setError("");
 
-  // Buka modal tambah produk baru (reset form)
+      const data = await productApi.getAll();
+      setProduk(data);
+
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    ambilProduk();
+  }, [ambilProduk]);
+
+  // Membuka modal tambah
   const handleBukaTambah = () => {
     setNama("");
     setHarga("");
@@ -41,266 +75,322 @@ function App() {
     setModal("tambah");
   };
 
-  // Buka modal edit produk dan pasang datanya ke form
+  // Membuka modal edit
   const handleBukaEdit = (item) => {
-    setProdukDipilih(item);
     setNama(item.nama);
     setHarga(String(item.harga));
+    setProdukDipilih(item);
     setModal("edit");
   };
 
-  // Buka modal konfirmasi hapus produk
+  // Membuka modal konfirmasi hapus
   const handleBukaHapus = (item) => {
     setProdukDipilih(item);
     setModal("hapus");
   };
 
-  // Fungsi tutup dan reset modal
+  // Menutup modal
   const handleTutupModal = () => {
+    if (isSaving) return;
+
     setModal(null);
     setProdukDipilih(null);
   };
 
-  // Handle penambahan produk baru
-  const handleTambahProduk = (e) => {
-    e.preventDefault();
-
+  // Validasi data
+  const validasiProduk = () => {
     const hargaAngka = Number(harga);
 
-    // Validasi form produk
-    if (!nama.trim() || isNaN(hargaAngka) || hargaAngka <= 0) {
-      alert("Nama produk wajib diisi dan harga harus lebih dari 0!");
-      return;
+    if (
+      !nama.trim() ||
+      !harga.trim() ||
+      !Number.isSafeInteger(hargaAngka) ||
+      hargaAngka <= 0
+    ) {
+      alert(
+        "Nama wajib diisi dan harga harus bilangan bulat lebih dari 0!"
+      );
+      return false;
     }
 
-    // Auto generate ID (ID terbesar + 1)
-    const idBaru =
-      produk.length > 0
-        ? Math.max(...produk.map((item) => item.id)) + 1
-        : 1;
+    return true;
+  };
 
-    setProduk([
-      ...produk,
-      {
-        id: idBaru,
+  // POST: Tambah produk
+  const handleTambahProduk = async (e) => {
+    e.preventDefault();
+    if (isSaving || !validasiProduk()) return;
+
+    setIsSaving(true);
+
+    try {
+      await productApi.create({
         nama: nama.trim(),
-        harga: hargaAngka,
-      },
-    ]);
+        harga: Number(harga),
+      });
 
-    handleTutupModal();
+      const berhasil = await ambilProduk();
+
+      if (berhasil) {
+        setModal(null);
+        setProdukDipilih(null);
+      }
+    } catch (err) {
+      alert("Gagal menambahkan produk: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  // Handle update data produk yang diedit
-  const handleEditProduk = (e) => {
+  // PUT: Edit produk
+  const handleEditProduk = async (e) => {
     e.preventDefault();
 
-    const hargaAngka = Number(harga);
-
-    // Validasi form produk
-    if (!nama.trim() || isNaN(hargaAngka) || hargaAngka <= 0) {
-      alert("Nama produk wajib diisi dan harga harus lebih dari 0!");
+    if (
+      isSaving ||
+      !produkDipilih ||
+      !validasiProduk()
+    ) {
       return;
     }
 
-    setProduk(
-      produk.map((item) =>
-        item.id === produkDipilih.id
-          ? { ...item, nama: nama.trim(), harga: hargaAngka }
-          : item
-      )
-    );
+    setIsSaving(true);
 
-    handleTutupModal();
+    try {
+      await productApi.update(produkDipilih.id, {
+        nama: nama.trim(),
+        harga: Number(harga),
+      });
+
+      const berhasil = await ambilProduk();
+
+      if (berhasil) {
+        setModal(null);
+        setProdukDipilih(null);
+      }
+    } catch (err) {
+      alert("Gagal mengedit produk: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  // Handle hapus produk dari state
-  const handleHapusProduk = () => {
-    setProduk(
-      produk.filter((item) => item.id !== produkDipilih.id)
-    );
+  // DELETE: Hapus produk
+  const handleHapusProduk = async () => {
+    if (!produkDipilih || isSaving) return;
 
-    handleTutupModal();
+    setIsSaving(true);
+
+    try {
+      await productApi.remove(produkDipilih.id);
+
+      const berhasil = await ambilProduk();
+
+      if (berhasil) {
+        setModal(null);
+        setProdukDipilih(null);
+      }
+    } catch (err) {
+      alert("Gagal menghapus produk: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className="container">
-      {/* Header halaman */}
-      <div className="header">
-        <div>
-          <h1>Manajemen Produk</h1>
-          <p>Kelola daftar produk dan harga dalam satu tempat.</p>
-        </div>
+    <BrowserRouter>
+      <PageLayout>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Products
+                produk={produk}
+                pencarian={pencarian}
+                setPencarian={setPencarian}
+                tampilan={tampilan}
+                loading={loading}
+                error={error}
+                onTambah={handleBukaTambah}
+                onEdit={handleBukaEdit}
+                onDelete={handleBukaHapus}
+              />
+            }
+          />
 
-        <button className="btn-tambah" onClick={handleBukaTambah}>
-          + Tambah Produk
-        </button>
-      </div>
+          <Route
+            path="/products"
+            element={
+              <Products
+                produk={produk}
+                pencarian={pencarian}
+                setPencarian={setPencarian}
+                tampilan={tampilan}
+                loading={loading}
+                error={error}
+                onTambah={handleBukaTambah}
+                onEdit={handleBukaEdit}
+                onDelete={handleBukaHapus}
+              />
+            }
+          />
 
-      {/* Input pencarian produk */}
-      <input
-        type="text"
-        className="input-cari"
-        placeholder="⌕ Cari nama produk..."
-        value={pencarian}
-        onChange={(e) => setPencarian(e.target.value)}
-      />
+          <Route
+            path="/products/:id"
+            element={<ProductDetail />}
+          />
 
-      {/* Total produk */}
-      <p className="jumlah-produk">{produk.length} produk</p>
+          <Route
+            path="/settings"
+            element={
+              <Settings
+                tampilan={tampilan}
+                setTampilan={setTampilan}
+              />
+            }
+          />
 
-      {/* Grid tampilan produk */}
-      <div className="produk-grid">
-        {hasilPencarian.map((item) => (
-          <div className="produk-card" key={item.id}>
-            <span className="produk-id">ID: {item.id}</span>
-            <h2>{item.nama}</h2>
-            <h3>{formatRupiah(item.harga)}</h3>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
 
-            <div className="aksi">
+        {/* Modal Tambah / Edit */}
+        {(modal === "tambah" || modal === "edit") && (
+          <div
+            className="modal-overlay"
+            onClick={handleTutupModal}
+          >
+            <div
+              className="modal-box max-h-[90vh] overflow-y-auto rounded-xl bg-white p-8 shadow-xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label={
+                modal === "tambah"
+                  ? "Tambah Produk"
+                  : "Edit Produk"
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
-                className="btn-edit"
-                onClick={() => handleBukaEdit(item)}
+                type="button"
+                className="modal-close"
+                onClick={handleTutupModal}
+                disabled={isSaving}
+                aria-label="Tutup modal"
               >
-                Edit
+                ×
               </button>
 
-              <button
-                className="btn-hapus"
-                onClick={() => handleBukaHapus(item)}
-              >
-                Hapus
-              </button>
+              <h2 className="mb-3 text-2xl font-bold">
+                {modal === "tambah"
+                  ? "Tambah Produk"
+                  : "Edit Produk"}
+              </h2>
+
+              <p className="mb-6 text-slate-500">
+                {modal === "tambah"
+                  ? "Masukkan informasi produk baru."
+                  : "Perbarui informasi produk yang dipilih."}
+              </p>
+
+              {modal === "edit" && produkDipilih && (
+                <p className="mb-4 text-sm text-slate-500">
+                  ID: {produkDipilih.id}
+                </p>
+              )}
+
+              <ProductForm
+                nama={nama}
+                harga={harga}
+                setNama={setNama}
+                setHarga={setHarga}
+                isEdit={modal === "edit"}
+                isSaving={isSaving}
+                onSubmit={
+                  modal === "tambah"
+                    ? handleTambahProduk
+                    : handleEditProduk
+                }
+                onCancel={handleTutupModal}
+              />
             </div>
           </div>
-        ))}
-      </div>
+        )}
 
-      {hasilPencarian.length === 0 && (
-        <p className="produk-kosong">Produk tidak ditemukan.</p>
-      )}
-
-      {/* Footer informasi jumlah data yang ditampilkan */}
-      <p className="footer">
-        Menampilkan {hasilPencarian.length} dari {produk.length} produk
-      </p>
-
-      {/* Modal Form Tambah / Edit */}
-      {(modal === "tambah" || modal === "edit") && (
-        <div className="modal-overlay" onClick={handleTutupModal}>
+        {/* Modal Hapus */}
+        {modal === "hapus" && produkDipilih && (
           <div
-            className="modal-box"
-            onClick={(e) => e.stopPropagation()}
+            className="modal-overlay"
+            onClick={handleTutupModal}
           >
-            <button className="modal-close" onClick={handleTutupModal}>
-              ×
-            </button>
-
-            <h2>
-              {modal === "tambah" ? "Tambah Produk" : "Edit Produk"}
-            </h2>
-
-            <p className="modal-deskripsi">
-              {modal === "tambah"
-                ? "Masukkan informasi produk baru."
-                : "Perbarui informasi produk yang dipilih."}
-            </p>
-
-            {modal === "edit" && (
-              <p className="modal-id">ID: {produkDipilih.id}</p>
-            )}
-
-            <form
-              onSubmit={modal === "tambah" ? handleTambahProduk : handleEditProduk}
+            <div
+              className="modal-box max-h-[90vh] overflow-y-auto rounded-xl bg-white p-8 shadow-xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Konfirmasi hapus produk"
+              onClick={(e) => e.stopPropagation()}
             >
-              <label htmlFor="nama-produk">Nama Produk</label>
-              <input
-                id="nama-produk"
-                type="text"
-                placeholder="Contoh: Pulpen"
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                required
-              />
+              <button
+                type="button"
+                className="modal-close"
+                onClick={handleTutupModal}
+                disabled={isSaving}
+                aria-label="Tutup modal"
+              >
+                ×
+              </button>
 
-              <label htmlFor="harga-produk">Harga (Rp)</label>
-              <input
-                id="harga-produk"
-                type="number"
-                placeholder="Contoh: 5000"
-                value={harga}
-                onChange={(e) => setHarga(e.target.value)}
-                min="1"
-                step="1"
-                required
-              />
+              <div className="mb-3 text-4xl">
+                🗑️
+              </div>
 
-              <p className="form-hint">Harga harus lebih dari 0.</p>
+              <h2 className="mb-3 text-2xl font-bold">
+                Hapus Produk?
+              </h2>
 
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn-batal"
+              <p className="mb-5 text-slate-500">
+                Produk yang dihapus tidak dapat dikembalikan.
+              </p>
+
+              <div className="rounded-lg bg-slate-100 p-5">
+                <p className="text-sm text-slate-500">
+                  ID: {produkDipilih.id}
+                </p>
+
+                <h3 className="my-2 text-lg font-bold">
+                  {produkDipilih.nama}
+                </h3>
+
+                <strong className="text-blue-600">
+                  {formatRupiah(produkDipilih.harga)}
+                </strong>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <Button
+                  variant="secondary"
+                  className="flex-1"
                   onClick={handleTutupModal}
+                  disabled={isSaving}
                 >
                   Batal
-                </button>
+                </Button>
 
-                <button type="submit" className="btn-simpan">
-                  {modal === "tambah"
-                    ? "Simpan Produk"
-                    : "Simpan Perubahan"}
-                </button>
+                <Button
+                  variant="danger"
+                  className="flex-1"
+                  onClick={handleHapusProduk}
+                  disabled={isSaving}
+                >
+                  {isSaving
+                    ? "Menghapus..."
+                    : "Hapus Produk"}
+                </Button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Konfirmasi Hapus Produk */}
-      {modal === "hapus" && produkDipilih && (
-        <div className="modal-overlay" onClick={handleTutupModal}>
-          <div
-            className="modal-box modal-hapus"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button className="modal-close" onClick={handleTutupModal}>
-              ×
-            </button>
-
-            <div className="icon-hapus">🗑️</div>
-
-            <h2>Hapus Produk?</h2>
-
-            <p className="modal-deskripsi">
-              Produk yang dihapus tidak dapat dikembalikan.
-            </p>
-
-            <div className="produk-preview">
-              <span>ID: {produkDipilih.id}</span>
-              <h3>{produkDipilih.nama}</h3>
-              <strong>{formatRupiah(produkDipilih.harga)}</strong>
-            </div>
-
-            <div className="modal-actions">
-              <button
-                className="btn-batal"
-                onClick={handleTutupModal}
-              >
-                Batal
-              </button>
-
-              <button
-                className="btn-konfirmasi-hapus"
-                onClick={handleHapusProduk}
-              >
-                Hapus Produk
-              </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </PageLayout>
+    </BrowserRouter>
   );
 }
 
